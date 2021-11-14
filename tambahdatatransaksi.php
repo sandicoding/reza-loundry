@@ -35,6 +35,25 @@ if(isset($_SESSION['id'])){
   </div>
 </nav>
 
+<?php
+                  include "./include/koneksi.php";
+                    $sql = mysqli_query($conn, "SELECT No_Order FROM transaksi  ORDER BY No_Order Desc LIMIT 1");
+                    while ($hasil = mysqli_fetch_array($sql)){
+                      $no = $hasil['No_Order'];
+                    }
+
+                    $no_o = $no + 1;
+                    $i = 0 + 1;
+                    $sql = mysqli_query($conn, "SELECT pakaian.Jenis_Pakaian, pakaian.harga, detail_transaksi.No_Order, detail_transaksi.Id_Pakaian, detail_transaksi.Jumlah_pakaian FROM detail_transaksi join pakaian on detail_transaksi.Id_Pakaian = Pakaian.Id_Pakaian Where No_Order = $no_o");
+                      
+                    while ($hasil = mysqli_fetch_array($sql)) {
+                      $totals[] = $hasil['harga'] * $hasil['Jumlah_pakaian'];
+                    }
+                    $cek = isset($totals);
+                    if($cek){
+                      $totalBayar = array_sum($totals);
+                    }
+?>
 <div class="container">
   <h3>Form Transaksi Laundry</h3>
   <hr>
@@ -67,12 +86,15 @@ if(isset($_SESSION['id'])){
                   </select>
                 </div>
                 <div class="form-group">
-                  <label>Total Berat</label>
-                  <input type="text" id="total_berat" class="form-control" name="total_berat" placeholder="Total Berat" value="0">
-                </div>
-                <div class="form-group">
-                  <label>Satuan</label>
-                  <input type="text" id="satuan" class="form-control" name="satuan" placeholder="satuan" value="0">
+                  <label>Total</label>
+                  <?php 
+                    $cek2 = isset($totalBayar);
+                    if($cek2){
+                  ?>
+                  <input type="text" id="total_berat" class="form-control" name="total_berat" placeholder="Total" value="<?= $totalBayar  ?>">
+                <?php }else { ?>
+                  <input type="text" id="total_berat" class="form-control" name="total_berat" placeholder="Total" value="">
+                  <?php } ?>
                 </div>
                 <div class="form-group">
                   <label>Diskon</label>
@@ -100,7 +122,8 @@ if(isset($_SESSION['id'])){
                   <tr>
                     <th style="text-align: center;">No</th>
                     <th>Jenis Pakaian</th>
-                    <th>Jumlah Pakaian</th>
+                    <th>Qty</th>
+                    <th>total</th>
                     <th style="text-align: center;" >Aksi</th>
                   </tr>
                 </thead>
@@ -113,19 +136,30 @@ if(isset($_SESSION['id'])){
 
                     $no_o = $no + 1;
                     $i = 0 + 1;
-                    $sql = mysqli_query($conn, "SELECT pakaian.Jenis_Pakaian, detail_transaksi.No_Order, detail_transaksi.Id_Pakaian, detail_transaksi.Jumlah_pakaian FROM detail_transaksi join pakaian on detail_transaksi.Id_Pakaian = Pakaian.Id_Pakaian Where No_Order = $no_o");
+                    $sql = mysqli_query($conn, "SELECT pakaian.Jenis_Pakaian, pakaian.harga, detail_transaksi.No_Order, detail_transaksi.Id_Pakaian, detail_transaksi.Jumlah_pakaian FROM detail_transaksi join pakaian on detail_transaksi.Id_Pakaian = Pakaian.Id_Pakaian Where No_Order = $no_o");
+                      
                     while ($hasil = mysqli_fetch_array($sql)) {
+                      $total[] = $hasil['harga'] * $hasil['Jumlah_pakaian'];
+                      $qty[] = $hasil['Jumlah_pakaian'];
                  ?>
               <tr>
                   <td style="text-align: center;"><?php echo $i; ?></td>
                   <td><?php echo $hasil['Jenis_Pakaian']; ?></td>
                   <td><?php echo $hasil['Jumlah_pakaian']; ?></td>
+                  <td><?php echo ($hasil['harga'] * $hasil['Jumlah_pakaian']) ?></td>
                   <td style="text-align: center;">
                     <a href="proses-hapus-detail-transaksi.php?order=<?php echo $hasil['No_Order']; ?>&pakaian=<?php echo $hasil['Id_Pakaian']; ?>" class="btn btn-danger">Hapus</a></td>
               </tr>
               <?php
                   $i++;
                   }
+
+                  
+                  // $ce2 = isset($total);
+                  //   if($cek){
+                  //     $harga = array_sum($total);
+                  //   }
+                  // //Tampilkan
                 ?>
 
               </tbody>
@@ -173,7 +207,7 @@ if(isset($_SESSION['id'])){
                 </select>
               </div>
 							<div class="form-group">
-								<label>Jumlah Pakaian</label>
+								<label>Qty</label>
 								<input type="text" class="form-control" name="Jumlah_Pakaian" placeholder="Jumlah pakaian" >
 							</div>
 							<div class="modal-footer">
@@ -185,6 +219,9 @@ if(isset($_SESSION['id'])){
 				</div>
 			</div>
 		</div>
+    <form action="">
+      
+    </form>
 
 
 
@@ -194,18 +231,15 @@ e = d+1
 form.No_Order.value=e
 function tambah()
     {
+    
     a=eval(form.total_berat.value)
-    satuan = eval(form.satuan.value)
     b=eval(form.diskon.value)
-    d=a*7000
-    satuanPrice = satuan
+    d=a
     if(!a == 0){
       c=d-(d*b/100)  
     }
     
-    if(!satuan == 0){
-     c=satuanPrice-(satuanPrice*b/100) 
-    }
+    
     // b=eval(form.b.value)
     // c=a+b
     form.total_bayar.value=c

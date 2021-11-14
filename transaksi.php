@@ -42,7 +42,7 @@ if(isset($_SESSION['id'])){
         <th>Nama</th>
         <th>Tanggal Terima</th>
         <th>Tanggal Ambil</th>
-        <th>Berat</th>
+        <th>Total</th>
         <th>Diskon</th>
         <th>Total Bayar</th>
         <th style="text-align: center;" >Aksi</th>
